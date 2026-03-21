@@ -11,7 +11,7 @@ class ProcessSitemap extends Process implements Module {
             'title'    => 'Sitemap Admin',
             'summary'  => 'Admin UI for Sitemap — settings, status dashboard, and manual generation.',
             'author'   => 'Maxim Alex',
-            'version'  => '1.0.0',
+            'version'  => '1.0.1',
             'autoload' => false,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -21,7 +21,10 @@ class ProcessSitemap extends Process implements Module {
                 'title'  => 'Sitemap',
                 'parent' => 'setup',
             ],
-            'permission' => 'page-edit',
+            'permission'  => 'sitemap-edit',
+            'permissions' => [
+                'sitemap-edit' => 'Manage Sitemap settings and generation',
+            ],
         ];
     }
 
