@@ -80,7 +80,7 @@ class ProcessSitemap extends Process implements Module {
     protected function renderDashboard(Sitemap $sitemap): string {
         $status        = $sitemap->getStatus();
         $cfg           = $this->config;
-        $baseUrl       = 'https://' . $cfg->httpHost;
+        $baseUrl       = $sitemap->getBaseUrl();
         $sitemapUrl    = $baseUrl . '/' . $status['sitemap_dir'] . '/sitemap.xml';
         $csrf          = [
             'name'  => $this->session->CSRF->getTokenName(),

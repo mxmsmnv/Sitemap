@@ -18,7 +18,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             'title'    => 'Sitemap',
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
             'author'   => 'Maxim Alex',
-            'version'  => '1.0.0',
+            'version'  => '1.0.1',
             'autoload' => true,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -91,6 +91,20 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
         return $this->loadSettings()[$name] ?? (self::getDefaultSettings()[$name] ?? null);
     }
 
+    /**
+     * Return the current site root URL with the same scheme ProcessWire sees.
+     */
+    public function getBaseUrl(): string {
+        $httpRoot = $this->config->urls->httpRoot ?? '';
+        if ($httpRoot) return rtrim($httpRoot, '/');
+
+        $scheme = !empty($this->config->https) ? 'https' : 'http';
+        $host   = $this->config->httpHost ?: ($_SERVER['HTTP_HOST'] ?? '');
+        $root   = $this->config->urls->root ?? '/';
+
+        return rtrim($scheme . '://' . $host . '/' . trim($root, '/'), '/');
+    }
+
     // -------------------------------------------------------------------------
     // Install / Uninstall
     // -------------------------------------------------------------------------
@@ -151,7 +165,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
     public function updateRobotsTxt(): bool {
         $robotsFile  = rtrim($this->config->paths->root, '/') . '/robots.txt';
         $sitemapDir  = trim($this->setting('sitemap_dir') ?: self::DEFAULT_DIR, '/');
-        $sitemapUrl  = 'https://' . $this->config->httpHost . '/' . $sitemapDir . '/sitemap.xml';
+        $sitemapUrl  = $this->getBaseUrl() . '/' . $sitemapDir . '/sitemap.xml';
         $enabled     = (bool)$this->setting('robots_txt_reference');
 
         $existing = file_exists($robotsFile) ? file_get_contents($robotsFile) : "User-agent: *\nAllow: /\n";
@@ -485,7 +499,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
 
     protected function writeSitemapIndex(string $filepath, array $files): void {
         $dir     = trim($this->setting('sitemap_dir') ?: self::DEFAULT_DIR, '/');
-        $baseUrl = rtrim('https://' . $this->config->httpHost, '/');
+        $baseUrl = $this->getBaseUrl();
         $xml     = new XMLWriter();
         $xml->openUri($filepath);
         $xml->startDocument('1.0', 'UTF-8');
@@ -553,7 +567,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
         $key        = trim($this->setting('indexnow_key'));
         $dir        = trim($this->setting('sitemap_dir') ?: self::DEFAULT_DIR, '/');
         $host       = $this->config->httpHost;
-        $baseUrl    = 'https://' . $host;
+        $baseUrl    = $this->getBaseUrl();
         $keyFileUrl = $baseUrl . '/' . $key . '.txt';
 
         // Collect all page URLs from generated sitemap files
