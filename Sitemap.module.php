@@ -7,7 +7,7 @@
  * size limits. Generates standard-compliant XML sitemaps with sitemap index
  * support for large sites.
  *
- * @copyright 2025 Maxim Alex (smnv.org)
+ * @copyright 2025 Maxim Semenov (smnv.org)
  * @license MIT
  */
 
@@ -17,7 +17,8 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
         return [
             'title'    => 'Sitemap',
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
-            'author'   => 'Maxim Alex',
+            'author'   => 'Maxim Semenov',
+            'href'     => 'https://smnv.org',
             'version'  => '1.0.1',
             'autoload' => true,
             'singular' => true,

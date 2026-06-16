@@ -10,7 +10,8 @@ class ProcessSitemap extends Process implements Module {
         return [
             'title'    => 'Sitemap Admin',
             'summary'  => 'Admin UI for Sitemap — settings, status dashboard, and manual generation.',
-            'author'   => 'Maxim Alex',
+            'author'   => 'Maxim Semenov',
+            'href'     => 'https://smnv.org',
             'version'  => '1.0.1',
             'autoload' => false,
             'singular' => true,

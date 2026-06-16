@@ -4,10 +4,11 @@ XML Sitemap generator module for [ProcessWire CMS](https://processwire.com).
 
 Generates standard-compliant XML sitemaps with per-template configuration, sitemap index support for large sites, image extension, hreflang for multilanguage sites, IndexNow submission, and LazyCron-based auto-regeneration.
 
-- **Author:** Maxim Semenov
-- **Website:** [smnv.org](https://smnv.org)
-- **Contact:** maxim@smnv.org
 - **Repository:** [github.com/mxmsmnv/Sitemap](https://github.com/mxmsmnv/Sitemap)
+
+**Author:** Maxim Semenov  
+**Website:** [smnv.org](https://smnv.org)  
+**Email:** [maxim@smnv.org](mailto:maxim@smnv.org)
 
 If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).
 
