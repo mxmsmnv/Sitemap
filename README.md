@@ -2,6 +2,8 @@
 
 XML Sitemap generator module for [ProcessWire CMS](https://processwire.com).
 
+![Sitemap](assets/Sitemap.png)
+
 Generates standard-compliant XML sitemaps with per-template configuration, sitemap index support for large sites, image extension, hreflang for multilanguage sites, IndexNow submission, and LazyCron-based auto-regeneration.
 
 - **Repository:** [github.com/mxmsmnv/Sitemap](https://github.com/mxmsmnv/Sitemap)
