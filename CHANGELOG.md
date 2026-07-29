@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - URL deduplication across normal Pages, configured custom URLs, and provider URLs.
 - Provider-controlled sitemap grouping through the optional `template` entry.
 
+### Fixed
+
+- Preserve HTTPS during CLI regeneration when ProcessWire exposes an HTTP `httpRoot`.
+
 ## [1.0.1] - 2026-06-07
 
 ### Fixed

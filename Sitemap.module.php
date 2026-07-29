@@ -97,7 +97,12 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
      */
     public function getBaseUrl(): string {
         $httpRoot = $this->config->urls->httpRoot ?? '';
-        if ($httpRoot) return rtrim($httpRoot, '/');
+        if ($httpRoot) {
+            if (!empty($this->config->https) && str_starts_with($httpRoot, 'http://')) {
+                $httpRoot = 'https://' . substr($httpRoot, 7);
+            }
+            return rtrim($httpRoot, '/');
+        }
 
         $scheme = !empty($this->config->https) ? 'https' : 'http';
         $host   = $this->config->httpHost ?: ($_SERVER['HTTP_HOST'] ?? '');
