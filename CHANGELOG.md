@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Preserve HTTPS during CLI regeneration when ProcessWire exposes an HTTP `httpRoot`.
+- Preserve HTTPS during CLI regeneration when ProcessWire exposes an HTTP `httpRoot`, including magic ProcessWire configuration properties.
 
 ## [1.0.1] - 2026-06-07
 

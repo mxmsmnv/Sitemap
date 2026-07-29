@@ -96,15 +96,16 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
      * Return the current site root URL with the same scheme ProcessWire sees.
      */
     public function getBaseUrl(): string {
-        $httpRoot = $this->config->urls->httpRoot ?? '';
+        $httpRoot = (string)$this->config->urls->httpRoot;
+        $isHttps = (bool)$this->config->https;
         if ($httpRoot) {
-            if (!empty($this->config->https) && str_starts_with($httpRoot, 'http://')) {
+            if ($isHttps && str_starts_with($httpRoot, 'http://')) {
                 $httpRoot = 'https://' . substr($httpRoot, 7);
             }
             return rtrim($httpRoot, '/');
         }
 
-        $scheme = !empty($this->config->https) ? 'https' : 'http';
+        $scheme = $isHttps ? 'https' : 'http';
         $host   = $this->config->httpHost ?: ($_SERVER['HTTP_HOST'] ?? '');
         $root   = $this->config->urls->root ?? '/';
 
