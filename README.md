@@ -28,6 +28,7 @@ If this project helps your work, consider supporting future development: [GitHub
 - Image sitemap extension (`<image:image>`) for Google Images
 - Hreflang `<xhtml:link rel="alternate">` for multilanguage sites (requires LanguageSupport)
 - Custom URL entries via JSON
+- Hookable URL providers for feature modules and virtual public routes
 - URL exclusion by substring or regex pattern
 - noindex field compatibility (WireSEO and common custom SEO field names)
 - Auto-regeneration via LazyCron with configurable interval (1 minute to 4 weeks)
@@ -140,6 +141,26 @@ JSON array of extra URLs to append to the sitemap regardless of page structure. 
   {"loc": "https://example.com/landing"}
 ]
 ```
+
+Feature modules can provide current URLs without copying them into Sitemap
+settings:
+
+```php
+$wire->addHookAfter('Sitemap::collectExtraUrls', function(HookEvent $event) {
+    $event->return = array_merge((array)$event->return, [
+        [
+            'loc' => 'https://example.com/virtual-page/',
+            'lastmod' => date('Y-m-d'),
+            'changefreq' => 'weekly',
+            'priority' => '0.6',
+            'template' => 'virtual-page',
+        ],
+    ]);
+});
+```
+
+Provider and configured custom URLs are validated, filtered by URL exclusion
+rules, and deduplicated against normal Page URLs.
 
 URL exclusion patterns (one per line) exclude pages whose URL contains the pattern or matches the regex.
 

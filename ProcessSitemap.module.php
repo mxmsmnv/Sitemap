@@ -12,7 +12,7 @@ class ProcessSitemap extends Process implements Module {
             'summary'  => 'Admin UI for Sitemap — settings, status dashboard, and manual generation.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.0.1',
+            'version'  => '1.1.0',
             'autoload' => false,
             'singular' => true,
             'icon'     => 'sitemap',

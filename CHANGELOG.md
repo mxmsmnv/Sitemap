@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.1.0] - 2026-07-29
+
+### Added
+
+- Hookable `Sitemap::collectExtraUrls` provider contract for feature modules and virtual routes.
+- Validation and URL-pattern filtering for configured and provider-supplied URLs.
+- URL deduplication across normal Pages, configured custom URLs, and provider URLs.
+- Provider-controlled sitemap grouping through the optional `template` entry.
+
 ## [1.0.1] - 2026-06-07
 
 ### Fixed

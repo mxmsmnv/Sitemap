@@ -19,7 +19,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.0.1',
+            'version'  => '1.1.0',
             'autoload' => true,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -357,18 +357,37 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             $start += $pageSize;
         }
 
-        foreach (json_decode($s['custom_urls'], true) ?: [] as $custom) {
+        $extraUrls = array_merge(
+            json_decode($s['custom_urls'], true) ?: [],
+            (array)$this->collectExtraUrls()
+        );
+        foreach ($extraUrls as $custom) {
             if (empty($custom['loc'])) continue;
+            $loc = filter_var((string)$custom['loc'], FILTER_VALIDATE_URL);
+            if (!$loc || !in_array(parse_url($loc, PHP_URL_SCHEME), ['http', 'https'], true)) continue;
+            if ($this->matchesExcludePattern($loc, $s['exclude_url_patterns'])) continue;
             $urls[] = [
-                'loc'        => $custom['loc'],
+                'loc'        => $loc,
                 'lastmod'    => $custom['lastmod'] ?? null,
                 'changefreq' => $custom['changefreq'] ?? $s['default_changefreq'],
-                'priority'   => number_format((float)($custom['priority'] ?? $s['default_priority']), 1),
-                'template'   => 'custom',
+                'priority'   => number_format(max(0, min(1, (float)($custom['priority'] ?? $s['default_priority']))), 1),
+                'template'   => $this->sanitizer->name((string)($custom['template'] ?? 'custom')) ?: 'custom',
             ];
         }
 
-        return $urls;
+        $unique = [];
+        foreach ($urls as $entry) $unique[(string)$entry['loc']] = $entry;
+        return array_values($unique);
+    }
+
+    /**
+     * Hookable provider contract for URLs that are not discoverable as normal
+     * ProcessWire Pages, or that belong to an installed feature module.
+     *
+     * Each entry supports loc, lastmod, changefreq, priority, and template.
+     */
+    public function ___collectExtraUrls(): array {
+        return [];
     }
 
     protected function pageHasNoindex(Page $page): bool {
