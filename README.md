@@ -29,6 +29,7 @@ If this project helps your work, consider supporting future development: [GitHub
 - Hreflang `<xhtml:link rel="alternate">` for multilanguage sites (requires LanguageSupport)
 - Custom URL entries via JSON
 - Hookable URL providers for feature modules and virtual public routes
+- Hookable per-page providers for enumerable ProcessWire URL segments
 - URL exclusion by substring or regex pattern
 - noindex field compatibility (WireSEO and common custom SEO field names)
 - Auto-regeneration via LazyCron with configurable interval (1 minute to 4 weeks)
@@ -161,6 +162,35 @@ $wire->addHookAfter('Sitemap::collectExtraUrls', function(HookEvent $event) {
 
 Provider and configured custom URLs are validated, filtered by URL exclusion
 rules, and deduplicated against normal Page URLs.
+
+### URL segments
+
+ProcessWire records whether a template accepts URL segments, but the segment
+values are application-defined and are not stored as Pages. Sitemap therefore
+cannot discover them automatically. For templates with URL segments enabled,
+provide the enumerable segments from site code:
+
+```php
+$wire->addHookAfter('Sitemap::collectUrlSegments', function(HookEvent $event) {
+    /** @var Page $page */
+    $page = $event->arguments(0);
+    if ($page->template->name !== 'article') return;
+
+    $event->return = array_merge((array)$event->return, [
+        'print/',
+        [
+            'segment' => 'comments/',
+            'changefreq' => 'daily',
+            'priority' => '0.4',
+        ],
+    ]);
+});
+```
+
+Each item may be a relative segment string or an array with `segment` (or an
+absolute `loc`) and optional `lastmod`, `changefreq`, `priority`, and `template`
+overrides. Relative segments inherit the page's sitemap metadata. Exclusion
+patterns and URL deduplication apply to the generated segment URLs.
 
 URL exclusion patterns (one per line) exclude pages whose URL contains the pattern or matches the regex.
 

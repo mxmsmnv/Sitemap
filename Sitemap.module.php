@@ -19,7 +19,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.1.0',
+            'version'  => '1.2.0',
             'autoload' => true,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -353,6 +353,15 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
                 if ($s['include_images'])     $entry['images']   = $this->collectPageImages($page);
                 if ($s['multilang_hreflang']) $entry['hreflang'] = $this->collectHreflang($page);
                 $urls[] = $entry;
+
+                if ($page->template->urlSegments) {
+                    foreach ((array)$this->collectUrlSegments($page) as $segment) {
+                        $segmentEntry = $this->buildUrlSegmentEntry($pageUrl, $entry, $segment);
+                        if (!$segmentEntry) continue;
+                        if ($this->matchesExcludePattern($segmentEntry['loc'], $s['exclude_url_patterns'])) continue;
+                        $urls[] = $segmentEntry;
+                    }
+                }
             }
 
             $cnt = $chunk->count();
@@ -394,6 +403,50 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
      */
     public function ___collectExtraUrls(): array {
         return [];
+    }
+
+    /**
+     * Hookable provider contract for the enumerable URL segments of a Page.
+     *
+     * ProcessWire only records whether a template accepts URL segments; the
+     * actual segment values are application-defined and cannot be discovered
+     * automatically. Providers may return a relative segment string, or an
+     * array containing segment (or an absolute loc) plus optional lastmod,
+     * changefreq, priority, and template overrides.
+     */
+    public function ___collectUrlSegments(Page $page): array {
+        return [];
+    }
+
+    protected function buildUrlSegmentEntry(string $pageUrl, array $pageEntry, $segment): ?array {
+        if (is_string($segment)) {
+            $data = ['segment' => $segment];
+        } elseif (is_array($segment)) {
+            $data = $segment;
+        } else {
+            return null;
+        }
+
+        if (!empty($data['loc'])) {
+            $loc = (string)$data['loc'];
+        } else {
+            $path = trim((string)($data['segment'] ?? ''));
+            if ($path === '') return null;
+            $loc = rtrim($pageUrl, '/') . '/' . ltrim($path, '/');
+        }
+
+        $loc = filter_var($loc, FILTER_VALIDATE_URL);
+        if (!$loc || !in_array(parse_url($loc, PHP_URL_SCHEME), ['http', 'https'], true)) return null;
+
+        $entry = [
+            'loc'        => $loc,
+            'lastmod'    => $data['lastmod'] ?? $pageEntry['lastmod'],
+            'changefreq' => $data['changefreq'] ?? $pageEntry['changefreq'],
+            'priority'   => number_format(max(0, min(1, (float)($data['priority'] ?? $pageEntry['priority']))), 1),
+            'template'   => $this->sanitizer->name((string)($data['template'] ?? $pageEntry['template'])) ?: 'url-segments',
+        ];
+
+        return $entry;
     }
 
     protected function pageHasNoindex(Page $page): bool {

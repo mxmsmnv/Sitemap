@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.2.0] - 2026-08-24
+
+### Added
+
+- Hookable `Sitemap::collectUrlSegments` provider contract for enumerable,
+  application-defined URL segments.
+- URL segment entries inherit page metadata and pass through URL validation,
+  exclusion rules, and final deduplication.
+
 ## [1.1.0] - 2026-07-29
 
 ### Added
