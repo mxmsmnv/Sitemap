@@ -90,8 +90,9 @@ $wire->addHookAfter('Sitemap::collectExtraUrls', function(HookEvent $event) {
 
 ### `Sitemap::collectUrlSegments`
 
-Called once for each included Page whose template has URL segments enabled.
-Argument 0 is that `Page`. Return an array whose items are either:
+Called once for each included Page whose template has URL segments or page
+numbers enabled. Argument 0 is that `Page`. Return an array whose items are
+either:
 
 - a relative segment string such as `print/`; or
 - an array with `segment`, or with an absolute `loc`, plus optional `lastmod`,
@@ -99,6 +100,10 @@ Argument 0 is that `Page`. Return an array whose items are either:
 
 Relative entries inherit the Page entry's metadata. Sitemap URL exclusion rules,
 validation, and deduplication are applied after the hook result is collected.
+
+The returned list may be calculated at generation time. This supports dynamic
+routes derived from Users or other Pages as well as `page2/`, `page3/`, and
+later pagination URLs.
 
 ```php
 $wire->addHookAfter('Sitemap::collectUrlSegments', function(HookEvent $event) {

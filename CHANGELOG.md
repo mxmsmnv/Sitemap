@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.2.1] - 2026-08-25
+
+### Fixed
+
+- Invoke `Sitemap::collectUrlSegments` for included Pages whose templates
+  enable either URL segments or page numbers, covering dynamic author routes
+  and pagination such as `page2/`.
+- Document runtime-derived provider results rather than implying that segment
+  values must be hardcoded.
+
 ## [1.2.0] - 2026-08-24
 
 ### Added

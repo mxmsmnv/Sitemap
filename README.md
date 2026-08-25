@@ -165,25 +165,34 @@ rules, and deduplicated against normal Page URLs.
 
 ### URL segments
 
-ProcessWire records whether a template accepts URL segments, but the segment
-values are application-defined and are not stored as Pages. Sitemap therefore
-cannot discover them automatically. For templates with URL segments enabled,
-provide the enumerable segments from site code:
+ProcessWire records whether a template accepts URL segments or page numbers,
+but the actual routes and result counts are application-defined and are not
+stored as Pages. Sitemap therefore cannot discover them automatically. For
+templates with URL segments or pagination enabled, provide the enumerable
+routes from site code. They may be calculated dynamically during generation:
 
 ```php
 $wire->addHookAfter('Sitemap::collectUrlSegments', function(HookEvent $event) {
     /** @var Page $page */
     $page = $event->arguments(0);
-    if ($page->template->name !== 'article') return;
+    $routes = (array)$event->return;
 
-    $event->return = array_merge((array)$event->return, [
-        'print/',
-        [
-            'segment' => 'comments/',
-            'changefreq' => 'daily',
-            'priority' => '0.4',
-        ],
-    ]);
+    if ($page->template->name === 'blog-authors') {
+        $authorRole = wire('roles')->get('blog-author');
+        foreach (wire('users')->find("roles=$authorRole, sort=title") as $author) {
+            $slug = wire('sanitizer')->pageName($author->title);
+            if ($slug) $routes[] = ['segment' => $slug . '/', 'lastmod' => date('c', $author->modified)];
+        }
+    }
+
+    if ($page->template->name === 'blog-posts') {
+        $totalPages = (int)ceil(wire('pages')->count('template=blog-post') / 8);
+        for ($n = 2; $n <= $totalPages; $n++) {
+            $routes[] = wire('config')->pageNumUrlPrefix . $n . '/';
+        }
+    }
+
+    $event->return = $routes;
 });
 ```
 

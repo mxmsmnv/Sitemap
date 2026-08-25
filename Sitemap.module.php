@@ -19,7 +19,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.2.0',
+            'version'  => '1.2.1',
             'autoload' => true,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -354,7 +354,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
                 if ($s['multilang_hreflang']) $entry['hreflang'] = $this->collectHreflang($page);
                 $urls[] = $entry;
 
-                if ($page->template->urlSegments) {
+                if ($page->template->urlSegments || $page->template->allowPageNum) {
                     foreach ((array)$this->collectUrlSegments($page) as $segment) {
                         $segmentEntry = $this->buildUrlSegmentEntry($pageUrl, $entry, $segment);
                         if (!$segmentEntry) continue;
@@ -406,13 +406,13 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
     }
 
     /**
-     * Hookable provider contract for the enumerable URL segments of a Page.
+     * Hookable provider contract for enumerable virtual routes of a Page.
      *
-     * ProcessWire only records whether a template accepts URL segments; the
-     * actual segment values are application-defined and cannot be discovered
-     * automatically. Providers may return a relative segment string, or an
-     * array containing segment (or an absolute loc) plus optional lastmod,
-     * changefreq, priority, and template overrides.
+     * ProcessWire only records whether a template accepts URL segments or page
+     * numbers; the actual route values and result counts are application-defined
+     * and cannot be discovered automatically. Providers may return a relative
+     * route string, or an array containing segment (or an absolute loc) plus
+     * optional lastmod, changefreq, priority, and template overrides.
      */
     public function ___collectUrlSegments(Page $page): array {
         return [];
