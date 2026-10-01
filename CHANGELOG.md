@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [1.2.2] - 2026-09-30
+
+### Fixed
+
+- Run scheduled sitemap regeneration in the bundled CLI runner instead of the
+  LazyCron web request, preventing large sites from delaying or timing out an
+  unrelated visitor request.
+- Keep the regeneration-needed marker set and log an actionable message when
+  the host cannot launch the CLI runner.
+- Keep dashboard links, tables, and settings tabs inside the admin viewport on
+  phones, with local horizontal scrolling where tabular data needs it.
+
 ## [1.2.1] - 2026-08-25
 
 ### Fixed

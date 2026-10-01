@@ -8,8 +8,8 @@ Generates standard-compliant XML sitemaps with per-template configuration, sitem
 
 - **Repository:** [github.com/mxmsmnv/Sitemap](https://github.com/mxmsmnv/Sitemap)
 
-**Author:** Maxim Semenov  
-**Website:** [smnv.org](https://smnv.org)  
+**Author:** Maxim Semenov
+**Website:** [smnv.org](https://smnv.org)
 **Email:** [maxim@smnv.org](mailto:maxim@smnv.org)
 
 If this project helps your work, consider supporting future development: [GitHub Sponsors](https://github.com/sponsors/mxmsmnv) or [smnv.org/sponsor](https://smnv.org/sponsor/).
@@ -32,7 +32,7 @@ If this project helps your work, consider supporting future development: [GitHub
 - Hookable per-page providers for enumerable ProcessWire URL segments
 - URL exclusion by substring or regex pattern
 - noindex field compatibility (WireSEO and common custom SEO field names)
-- Auto-regeneration via LazyCron with configurable interval (1 minute to 4 weeks)
+- Auto-regeneration via LazyCron with configurable interval (1 minute to 4 weeks); LazyCron queues the bundled CLI runner so sitemap work does not delay the visitor request
 - LazyCron slot is chosen dynamically to match the configured interval
 - Cache invalidation on page save, trash, and delete
 - IndexNow submission after generation (Bing, Yandex, DuckDuckGo)

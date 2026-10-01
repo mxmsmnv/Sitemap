@@ -1,0 +1,44 @@
+.sitemap-admin {
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.sitemap-admin .sitemap-status-row > *,
+.sitemap-admin .uk-grid > * {
+    min-width: 0;
+}
+
+.sitemap-admin .sitemap-status-row a {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.sitemap-admin .sitemap-table-wrap,
+.sitemap-admin .uk-overflow-auto {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.sitemap-admin .sitemap-table-wrap table {
+    width: max-content;
+    min-width: 100%;
+}
+
+@media (max-width: 639px) {
+    .sitemap-admin .sitemap-status-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .75rem;
+    }
+
+    .sitemap-admin .uk-tab {
+        max-width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+
+    .sitemap-admin .uk-tab > li > a {
+        white-space: nowrap;
+    }
+}

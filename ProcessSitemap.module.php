@@ -12,7 +12,7 @@ class ProcessSitemap extends Process implements Module {
             'summary'  => 'Admin UI for Sitemap — settings, status dashboard, and manual generation.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.2.1',
+            'version'  => '1.2.2',
             'autoload' => false,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -27,6 +27,16 @@ class ProcessSitemap extends Process implements Module {
                 'sitemap-edit' => 'Manage Sitemap settings and generation',
             ],
         ];
+    }
+
+    public function init(): void {
+        parent::init();
+        $path = __DIR__ . '/assets/process-sitemap.css';
+        if (is_file($path)) {
+            $this->config->styles->add(
+                $this->config->urls->siteModules . 'Sitemap/assets/process-sitemap.css?v=' . filemtime($path)
+            );
+        }
     }
 
     public function execute(): string {
@@ -95,7 +105,7 @@ class ProcessSitemap extends Process implements Module {
         $autoRegen     = $sitemap->setting('auto_regenerate');
 
         ob_start(); ?>
-<div uk-margin>
+<div class="sitemap-admin" uk-margin>
 
 <?php if ($autoRegen && !$lazyCronOk): ?>
 <div class="uk-alert uk-alert-danger">
@@ -120,7 +130,7 @@ class ProcessSitemap extends Process implements Module {
 <?php endif; ?>
 
 <div class="uk-card uk-card-default uk-card-body uk-padding-small">
-    <div class="uk-flex uk-flex-middle uk-flex-between">
+    <div class="uk-flex uk-flex-middle uk-flex-between sitemap-status-row">
         <div class="uk-flex uk-flex-middle">
             <?php if ($isLocked): ?>
                 <span class="uk-label uk-label-warning">Generating…</span>
@@ -206,6 +216,7 @@ class ProcessSitemap extends Process implements Module {
     No sitemap files yet. Click "Generate Now" to create them.
 </div>
 <?php else: ?>
+<div class="sitemap-table-wrap">
 <table class="uk-table uk-table-striped uk-table-small uk-table-hover">
     <thead>
         <tr>
@@ -233,6 +244,7 @@ class ProcessSitemap extends Process implements Module {
     <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 <?php endif; ?>
 
 </div>
@@ -309,7 +321,7 @@ class ProcessSitemap extends Process implements Module {
         };
 
         ob_start(); ?>
-<form method="post" action="./" class="uk-form-stacked">
+<form method="post" action="./" class="uk-form-stacked sitemap-admin">
 <input type="hidden" name="<?= $csrf['name'] ?>" value="<?= $csrf['value'] ?>">
 <input type="hidden" name="action" value="save_settings">
 <input type="hidden" name="template_settings" id="sm_tpl_json" value="<?= $tplJsonVal ?>">

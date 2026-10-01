@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php namespace ProcessWire;
+
+if (PHP_SAPI !== 'cli') {
+    fwrite(STDERR, "Sitemap runner is CLI-only.\n");
+    exit(2);
+}
+
+$root = dirname(__DIR__, 4);
+foreach (array_slice($argv, 1) as $argument) {
+    if (str_starts_with($argument, '--root=')) {
+        $root = substr($argument, 7);
+    }
+}
+$root = rtrim((string)$root, DIRECTORY_SEPARATOR);
+if ($root === '' || !is_file($root . DIRECTORY_SEPARATOR . 'index.php')) {
+    fwrite(STDERR, "Usage: php bin/sitemap --root=/path/to/processwire\n");
+    exit(2);
+}
+
+chdir($root);
+require $root . DIRECTORY_SEPARATOR . 'index.php';
+
+try {
+    $module = wire('modules')->get('Sitemap');
+    if (!$module instanceof Sitemap) {
+        throw new \RuntimeException('Sitemap is not installed.');
+    }
+    $result = $module->generate(false);
+    if (isset($result['error'])) {
+        fwrite(STDOUT, json_encode($result, JSON_UNESCAPED_SLASHES) . PHP_EOL);
+        exit(0);
+    }
+    fwrite(STDOUT, json_encode(['ok' => true] + $result, JSON_UNESCAPED_SLASHES) . PHP_EOL);
+} catch (\Throwable $error) {
+    fwrite(STDERR, $error->getMessage() . PHP_EOL);
+    exit(1);
+} finally {
+    if (function_exists(__NAMESPACE__ . '\\wire')) {
+        wire('cache')->delete('Sitemap_cli_queued');
+    }
+}

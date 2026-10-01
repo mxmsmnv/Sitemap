@@ -19,7 +19,7 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             'summary'  => 'XML Sitemap generator with sitemap index, per-template settings, and cron-based auto-regeneration.',
             'author'   => 'Maxim Semenov',
             'href'     => 'https://smnv.org',
-            'version'  => '1.2.1',
+            'version'  => '1.2.2',
             'autoload' => true,
             'singular' => true,
             'icon'     => 'sitemap',
@@ -254,8 +254,12 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
             $elapsed !== null ? $elapsed . 's' : 'n/a'
         ));
         if (!$lastGen || $elapsed >= $interval) {
-            $this->log->save('sitemap', 'LazyCron: starting generation');
-            $this->generate();
+            $this->cache->save('Sitemap_needs_regen', true, WireCache::expireNever);
+            if ($this->queueCliGeneration()) {
+                $this->log->save('sitemap', 'LazyCron: queued CLI generation');
+            } else {
+                $this->log->save('sitemap', 'LazyCron: CLI generation could not be queued; run bin/sitemap from cron');
+            }
         } else {
             $this->log->save('sitemap', sprintf('LazyCron: skipping, next in %ds', $interval - $elapsed));
         }
@@ -263,6 +267,44 @@ class Sitemap extends WireData implements Module, ConfigurableModule {
 
     public function hookPageChanged(HookEvent $event): void {
         $this->cache->save('Sitemap_needs_regen', true, WireCache::expireNever);
+    }
+
+    /**
+     * Start the heavy generator outside the request-serving PHP process.
+     *
+     * LazyCron itself runs during a normal web request. Generating a large
+     * sitemap in that hook delays the response and can exhaust a FastCGI
+     * timeout, so the hook may only enqueue the bundled CLI runner.
+     */
+    protected function queueCliGeneration(): bool {
+        $queuedAt = (int)$this->cache->get('Sitemap_cli_queued');
+        if ($queuedAt > 0 && (time() - $queuedAt) < 900) return true;
+
+        $disabled = array_filter(array_map('trim', explode(',', (string)ini_get('disable_functions'))));
+        if (!function_exists('exec') || in_array('exec', $disabled, true)) return false;
+
+        $php = PHP_BINDIR . DIRECTORY_SEPARATOR . 'php';
+        $runner = __DIR__ . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'sitemap';
+        $root = rtrim((string)$this->config->paths->root, DIRECTORY_SEPARATOR);
+        $log = rtrim((string)$this->config->paths->logs, DIRECTORY_SEPARATOR)
+            . DIRECTORY_SEPARATOR . 'sitemap-cli.log';
+        if (!is_executable($php) || !is_file($runner) || !is_file($root . DIRECTORY_SEPARATOR . 'index.php')) {
+            return false;
+        }
+
+        $command = 'nohup ' . escapeshellarg($php)
+            . ' ' . escapeshellarg($runner)
+            . ' ' . escapeshellarg('--root=' . $root)
+            . ' >> ' . escapeshellarg($log) . ' 2>&1 &';
+        $this->cache->save('Sitemap_cli_queued', time(), 900);
+        $output = [];
+        $status = 1;
+        exec($command, $output, $status);
+        if ($status !== 0) {
+            $this->cache->delete('Sitemap_cli_queued');
+            return false;
+        }
+        return true;
     }
 
     // -------------------------------------------------------------------------
